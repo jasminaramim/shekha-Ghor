@@ -558,33 +558,46 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
       {/* 8. Call to Action Banner */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-[#105C2B] via-[#16803C] to-emerald-800 rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="space-y-3 text-center md:text-left max-w-xl">
-            <div className="inline-flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full text-xs text-amber-300 font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>বিনামূল্যে উন্মুক্ত বাংলা শিক্ষা</span>
+        <div className="bg-gradient-to-r from-[#105C2B] via-[#16803C] to-emerald-800 rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-10">
+          <div className="space-y-8 text-center lg:text-left max-w-xl flex-1">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full text-xs text-amber-300 font-semibold">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>বিনামূল্যে উন্মুক্ত বাংলা শিক্ষা</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+                আজই শুরু করুন আপনার পছন্দের বিষয়ের ভিডিও দেখা
+              </h2>
+              <p className="text-sm sm:text-base text-emerald-100 leading-relaxed">
+                শেখাঘরের ফ্রি অ্যাকাউন্টে লগইন করে নিজের দেখা ভিডিওর হিস্টোরি, বুকমার্ক এবং অগ্রগতি সংরক্ষণ করুন।
+              </p>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              আজই শুরু করুন আপনার পছন্দের বিষয়ের ভিডিও দেখা
-            </h2>
-            <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
-              শেখাঘরের ফ্রি অ্যাকাউন্টে লগইন করে নিজের দেখা ভিডিওর হিস্টোরি, বুকমার্ক এবং অগ্রগতি সংরক্ষণ করুন।
-            </p>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
+              <button
+                onClick={() => navigate('/register')}
+                className="px-6 py-3.5 text-sm font-bold text-slate-900 bg-[#FACC15] hover:bg-yellow-400 rounded-xl transition-all shadow-md cursor-pointer whitespace-nowrap w-full sm:w-auto"
+              >
+                বিনামূল্যে অ্যাকাউন্ট খুলুন
+              </button>
+              <button
+                onClick={() => navigate('/categories')}
+                className="px-5 py-3.5 text-sm font-semibold text-white bg-white/15 hover:bg-white/25 rounded-xl transition-colors cursor-pointer whitespace-nowrap w-full sm:w-auto"
+              >
+                ক্যাটাগরি দেখুন
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              onClick={() => navigate('/register')}
-              className="px-6 py-3 text-xs sm:text-sm font-bold text-slate-900 bg-[#FACC15] hover:bg-yellow-400 rounded-xl transition-all shadow-md cursor-pointer whitespace-nowrap"
-            >
-              বিনামূল্যে অ্যাকাউন্ট খুলুন
-            </button>
-            <button
-              onClick={() => navigate('/categories')}
-              className="px-5 py-3 text-xs sm:text-sm font-semibold text-white bg-white/15 hover:bg-white/25 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
-            >
-              ক্যাটাগরি দেখুন
-            </button>
+          <div className="flex-1 w-full max-w-md lg:max-w-lg shrink-0 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 relative">
+            <video
+              src="/login.mp4"
+              autoPlay
+              controls
+              muted
+              loop
+              className="w-full h-auto object-cover"
+            />
           </div>
         </div>
       </section>
