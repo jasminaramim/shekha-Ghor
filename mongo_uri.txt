@@ -1,1 +1,0 @@
-mongodb+srv://shekhaghor:RPsYa4j7SrACYvi7@cluster0.ssmpl.mongodb.net/shekhaghor?retryWrites=true&w=majority&appName=Cluster0
