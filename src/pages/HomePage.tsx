@@ -255,15 +255,32 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                 <Leaf className="w-6 h-6 text-green-500" />
               </div>
 
-              <video 
-                src="/herovideo.mp4" 
-                controls 
-                playsInline 
-                autoPlay
-                muted
-                loop
-                className="w-full max-w-2xl h-auto rounded-[2rem] shadow-[0_20px_50px_-12px_rgba(22,128,60,0.3)] border-8 border-white/80 backdrop-blur-sm object-cover relative z-10"
-              />
+              <style>{`
+                @keyframes run-border {
+                  0% { background-position: 0% 50%; }
+                  50% { background-position: 100% 50%; }
+                  100% { background-position: 0% 50%; }
+                }
+                .animated-gradient-border {
+                  background: linear-gradient(90deg, #16803C, #FACC15, #16803C, #FACC15);
+                  background-size: 300% 300%;
+                  animation: run-border 4s linear infinite;
+                  padding: 6px;
+                  border-radius: 2.3rem;
+                }
+              `}</style>
+
+              <div className="animated-gradient-border w-full max-w-2xl shadow-[0_20px_50px_-12px_rgba(22,128,60,0.5)] relative z-10">
+                <video 
+                  src="/herovideo.mp4" 
+                  controls 
+                  playsInline 
+                  autoPlay
+                  muted
+                  loop
+                  className="w-full h-auto rounded-[2rem] object-cover bg-white"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -443,37 +460,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
       )}
 
 
-      {/* 5. জনপ্রিয় পূর্ণাঙ্গ কোর্সসমূহ (Full Course Playlists) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full mb-2">
-              <TrendingUp className="w-3.5 h-3.5 text-amber-600" />
-              <span>ধারাবাহিক সিলেবাস ও পাঠসমূহ</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              জনপ্রিয় ফুল-কোর্স ও প্লেলিস্ট
-            </h2>
-          </div>
 
-          <button
-            onClick={() => navigate('/courses')}
-            className="text-xs sm:text-sm font-bold text-[#16803C] hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            সকল কোর্স অন্বেষণ করুন <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.slice(0, 3).map((course) => (
-            <CourseCard
-              key={course.slug}
-              course={course}
-              onSelect={(slug) => navigate(`/courses/${slug}`)}
-            />
-          ))}
-        </div>
-      </section>
 
       {/* 6. প্রোগ্রামিং, এআই ও ডিজাইন বিভাগ */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
