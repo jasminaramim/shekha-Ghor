@@ -16,6 +16,7 @@ import { RegisterPage } from './pages/RegisterPage.js';
 import { DashboardPage } from './pages/DashboardPage.js';
 import { BookmarksPage } from './pages/BookmarksPage.js';
 import { AdminPage } from './pages/AdminPage.js';
+import { KidsPage } from './pages/KidsPage.js';
 import { AboutPage, ContactPage, PrivacyPage, TermsPage, DonatePage } from './pages/StaticPages.js';
 
 export default function App() {
@@ -93,6 +94,11 @@ export default function App() {
     if (pathname === '/search') {
       const query = searchParams.get('q') || '';
       return <SearchPage initialQuery={query} navigate={navigate} />;
+    }
+
+    // Kids Corner
+    if (pathname === '/kids') {
+      return <KidsPage navigate={navigate} />;
     }
 
     // Auth

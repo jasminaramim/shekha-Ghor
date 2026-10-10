@@ -346,11 +346,22 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
             </div>
 
             <button
-              onClick={() => navigate('/categories/children-education')}
+              onClick={() => navigate('/kids')}
               className="text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 cursor-pointer bg-white px-4 py-2 rounded-xl border border-amber-200 shadow-2xs self-start sm:self-auto"
             >
               শিশুদের সব ভিডিও দেখুন <ArrowRight className="w-4 h-4" />
             </button>
+          </div>
+
+          <div className="w-full flex justify-center mb-6">
+            <video
+              src="/kidsvideo.mp4"
+              autoPlay
+              controls
+              muted
+              loop
+              className="w-full max-w-4xl rounded-2xl shadow-xl border-4 border-white/50 backdrop-blur-sm"
+            />
           </div>
 
           {/* Kids Videos Grid */}
