@@ -9,21 +9,30 @@ const MONGODB_URI =
 
 let isConnected = false;
 
+let cachedPromise: Promise<typeof mongoose> | null = null;
+
 export async function connectDB() {
   if (isConnected) {
     return true;
   }
 
-  try {
-    const conn = await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 8000,
+  if (!cachedPromise) {
+    cachedPromise = mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
       connectTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      bufferCommands: false,
     });
-    isConnected = !!conn.connections[0].readyState;
+  }
+
+  try {
+    const conn = await cachedPromise;
+    isConnected = !!conn.connection.readyState;
     console.log(`[MongoDB] Connected to database: ${conn.connection.name || 'shekhaghor'}`);
     return true;
   } catch (error: any) {
     console.error('[MongoDB] Connection error:', error?.message || error);
+    cachedPromise = null;
     isConnected = false;
     return false;
   }
