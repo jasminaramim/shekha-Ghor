@@ -46,8 +46,8 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({ navigate }) => {
           playsInline 
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end p-6 sm:p-10">
-          <div className="text-white space-y-2">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end p-6 sm:p-10 pointer-events-none">
+          <div className="text-white space-y-2 pointer-events-auto">
             <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight drop-shadow-md">সবগুলো বিষয় একসাথে</h2>
             <p className="text-sm sm:text-base font-medium opacity-90 drop-shadow-sm">আপনার পছন্দের বিষয় বেছে নিন এবং শেখা শুরু করুন</p>
           </div>
