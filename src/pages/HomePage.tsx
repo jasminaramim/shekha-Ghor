@@ -27,6 +27,8 @@ import {
   Terminal,
   History,
   Heart,
+  Leaf,
+  Smile
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -109,7 +111,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* Left Column: Headline, Slogan, Search, & Trust Strip */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+            <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
               {/* Shekhaghor House Emblem with Sprout */}
               <div className="inline-flex items-center gap-2">
                 <svg
@@ -152,7 +154,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               </h1>
 
               {/* Subtitle */}
-              <p className="text-base sm:text-lg text-slate-700 max-w-2xl leading-relaxed">
+              <p className="text-base sm:text-lg text-slate-700 max-w-2xl leading-relaxed mx-auto lg:mx-0">
                 প্রযুক্তি, শিক্ষা, দক্ষতা ও ক্যারিয়ারের জন্য প্রয়োজনীয় ভিডিও খুঁজুন এক জায়গায়।
               </p>
 
@@ -192,7 +194,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                 </div>
               </form>
 
-              {/* 4-Item Feature Trust Strip Underneath (Exact match to banner) */}
+              {/* 4-Item Feature Trust Strip Underneath */}
               <div className="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left border-t border-slate-200/80">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-emerald-100 text-[#16803C] flex items-center justify-center shrink-0">
@@ -236,15 +238,127 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               </div>
             </div>
 
-            {/* Right Column: Hero Video */}
-            <div className="lg:col-span-5 relative flex justify-center items-center">
+            {/* Right Column: Hero Video & Floating Icons */}
+            <div className="lg:col-span-6 relative flex justify-center items-center mt-12 lg:mt-0">
+              
+              {/* Floating Elements (Tech, Code, Leaf, Cartoon) */}
+              <div className="absolute -top-4 -left-6 sm:top-4 sm:-left-8 bg-white p-3 rounded-2xl shadow-xl border border-emerald-100 animate-bounce z-20" style={{ animationDuration: '3s' }}>
+                <Code className="w-6 h-6 text-[#16803C]" />
+              </div>
+              <div className="absolute -top-8 right-8 sm:-top-10 sm:right-16 bg-white p-3 rounded-2xl shadow-xl border border-blue-100 animate-bounce z-20" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+                <Terminal className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="absolute top-1/2 -left-10 sm:-left-12 bg-white p-3 rounded-2xl shadow-xl border border-amber-100 animate-bounce z-20" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }}>
+                <Smile className="w-6 h-6 text-amber-500" />
+              </div>
+              <div className="absolute -bottom-6 right-4 sm:-bottom-8 sm:right-10 bg-white p-3 rounded-2xl shadow-xl border border-green-100 animate-bounce z-20" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}>
+                <Leaf className="w-6 h-6 text-green-500" />
+              </div>
+
               <video 
                 src="/herovideo.mp4" 
                 controls 
                 playsInline 
-                className="w-full max-w-lg h-auto rounded-3xl shadow-2xl border-4 border-white/50 backdrop-blur-sm object-cover"
+                autoPlay
+                muted
+                loop
+                className="w-full max-w-2xl h-auto rounded-[2rem] shadow-[0_20px_50px_-12px_rgba(22,128,60,0.3)] border-8 border-white/80 backdrop-blur-sm object-cover relative z-10"
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. ওয়েব ডেভেলপমেন্ট শেখার বিভাগ (HTML, CSS, JS, React, Node) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#16803C] bg-emerald-50 px-3 py-1 rounded-full mb-2">
+              <Code className="w-3.5 h-3.5" />
+              <span>HTML, CSS, JavaScript, React, Node.js</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              ওয়েব ডেভেলপমেন্ট ও সফটওয়্যার ইঞ্জিনিয়ারিং
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              ফ্রন্টএন্ড ও ব্যাকএন্ডের সেরা বাংলা টিউটোরিয়াল নিয়ে ক্যারিয়ার শুরু করুন
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate('/categories/web-development')}
+            className="text-xs sm:text-sm font-bold text-[#16803C] hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            সব ওয়েব ভিডিও দেখুন <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="w-full mb-6 rounded-3xl overflow-hidden shadow-xl border border-slate-200">
+          <video
+            src="/techvideo.mp4"
+            autoPlay
+            controls
+            muted
+            loop
+            className="w-full h-auto object-cover"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {webDevVideos.map((video) => (
+            <VideoCard
+              key={video.youtubeId}
+              video={video}
+              onSelect={(id) => navigate(`/video/${id}`)}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 3. শিশুদের শেখার বিভাগ (Kids Education Section) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-r from-amber-50/80 via-yellow-50/50 to-emerald-50/60 p-6 sm:p-8 rounded-3xl border border-amber-200/60 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-[#FEF9C3] px-3 py-1 rounded-full mb-2">
+                <span>👶 শিশুদের জন্য বিশেষ সংগ্রহ</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                ছোট্টমণিদের আনন্দের পাঠশালা
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                বাংলা বর্ণমালা, ছড়া, গল্প, সহজে সংখ্যা গণনা ও সাধারণ জ্ঞান
+              </p>
+            </div>
+
+            <button
+              onClick={() => navigate('/kids')}
+              className="text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 cursor-pointer bg-white px-4 py-2 rounded-xl border border-amber-200 shadow-2xs self-start sm:self-auto"
+            >
+              শিশুদের সব ভিডিও দেখুন <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="w-full mb-6 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm">
+            <video
+              src="/kidsvideo.mp4"
+              autoPlay
+              controls
+              muted
+              loop
+              className="w-full h-auto object-cover"
+            />
+          </div>
+
+          {/* Kids Videos Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {kidsVideos.map((video) => (
+              <VideoCard
+                key={video.youtubeId}
+                video={video}
+                onSelect={(id) => navigate(`/video/${id}`)}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -328,100 +442,6 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         </section>
       )}
 
-
-      {/* 3. শিশুদের শেখার বিভাগ (Kids Education Section) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-amber-50/80 via-yellow-50/50 to-emerald-50/60 p-6 sm:p-8 rounded-3xl border border-amber-200/60 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-[#FEF9C3] px-3 py-1 rounded-full mb-2">
-                <span>👶 শিশুদের জন্য বিশেষ সংগ্রহ</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                ছোট্টমণিদের আনন্দের পাঠশালা
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1">
-                বাংলা বর্ণমালা, ছড়া, গল্প, সহজে সংখ্যা গণনা ও সাধারণ জ্ঞান
-              </p>
-            </div>
-
-            <button
-              onClick={() => navigate('/kids')}
-              className="text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 cursor-pointer bg-white px-4 py-2 rounded-xl border border-amber-200 shadow-2xs self-start sm:self-auto"
-            >
-              শিশুদের সব ভিডিও দেখুন <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="w-full mb-6 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm">
-            <video
-              src="/kidsvideo.mp4"
-              autoPlay
-              controls
-              muted
-              loop
-              className="w-full h-auto object-cover"
-            />
-          </div>
-
-          {/* Kids Videos Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {kidsVideos.map((video) => (
-              <VideoCard
-                key={video.youtubeId}
-                video={video}
-                onSelect={(id) => navigate(`/video/${id}`)}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. ওয়েব ডেভেলপমেন্ট শেখার বিভাগ (HTML, CSS, JS, React, Node) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#16803C] bg-emerald-50 px-3 py-1 rounded-full mb-2">
-              <Code className="w-3.5 h-3.5" />
-              <span>HTML, CSS, JavaScript, React, Node.js</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              ওয়েব ডেভেলপমেন্ট ও সফটওয়্যার ইঞ্জিনিয়ারিং
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              ফ্রন্টএন্ড ও ব্যাকএন্ডের সেরা বাংলা টিউটোরিয়াল নিয়ে ক্যারিয়ার শুরু করুন
-            </p>
-          </div>
-
-          <button
-            onClick={() => navigate('/categories/web-development')}
-            className="text-xs sm:text-sm font-bold text-[#16803C] hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            সব ওয়েব ভিডিও দেখুন <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="w-full mb-6 rounded-3xl overflow-hidden shadow-xl border border-slate-200">
-          <video
-            src="/techvideo.mp4"
-            autoPlay
-            controls
-            muted
-            loop
-            className="w-full h-auto object-cover"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {webDevVideos.map((video) => (
-            <VideoCard
-              key={video.youtubeId}
-              video={video}
-              onSelect={(id) => navigate(`/video/${id}`)}
-            />
-          ))}
-        </div>
-      </section>
 
       {/* 5. জনপ্রিয় পূর্ণাঙ্গ কোর্সসমূহ (Full Course Playlists) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
