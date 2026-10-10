@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ICourse, ICategory } from '../types/index.js';
+import { ICourse, ICategory, IVideo } from '../types/index.js';
 import { api } from '../services/api.js';
 import { CourseCard } from '../components/CourseCard.js';
-import { Search, Filter, SlidersHorizontal, BookOpen } from 'lucide-react';
+import { VideoCard } from '../components/VideoCard.js';
+import { Search, BookOpen, Video } from 'lucide-react';
 
 interface CoursesPageProps {
   navigate: (path: string) => void;
@@ -14,6 +15,7 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({
   initialSort = 'newest',
 }) => {
   const [courses, setCourses] = useState<ICourse[]>([]);
+  const [videos, setVideos] = useState<IVideo[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,33 +33,52 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({
     loadCategories();
   }, []);
 
-  const fetchCourses = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await api.courses.getAll({
-        category: selectedCategory !== 'all' ? selectedCategory : undefined,
-        sort: sortOption,
-        search: searchQuery.trim() || undefined,
-        limit: 24,
-      });
-      if (res.success && res.courses) {
-        setCourses(res.courses);
+      const [coursesRes, videosRes] = await Promise.all([
+        api.courses.getAll({
+          category: selectedCategory !== 'all' ? selectedCategory : undefined,
+          sort: sortOption,
+          search: searchQuery.trim() || undefined,
+          limit: 100,
+        }),
+        api.videos.getAll({
+          category: selectedCategory !== 'all' ? selectedCategory : undefined,
+          sort: sortOption,
+          search: searchQuery.trim() || undefined,
+          limit: 100,
+        }),
+      ]);
+
+      if (coursesRes.success && coursesRes.courses) {
+        setCourses(coursesRes.courses);
+      } else {
+        setCourses([]);
+      }
+
+      if (videosRes.success && videosRes.videos) {
+        setVideos(videosRes.videos);
+      } else {
+        setVideos([]);
       }
     } catch (err) {
-      console.error('Fetch courses error:', err);
+      console.error('Fetch data error:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCourses();
+    fetchData();
   }, [selectedCategory, sortOption]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchCourses();
+    fetchData();
   };
+
+  const hasResults = courses.length > 0 || videos.length > 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
@@ -67,20 +88,19 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({
           সকল কোর্স ও ভিডিও সংগ্রহ
         </h1>
         <p className="text-sm text-slate-600 mt-1">
-          শেখাঘরের বিশেষায়িত প্লেলিস্ট ও কোর্সসমূহ থেকে আপনার পছন্দের বিষয়টি বেছে নিন
+          শেখাঘরের বিশেষায়িত প্লেলিস্ট ও ভিডিও থেকে আপনার পছন্দের বিষয়টি বেছে নিন
         </p>
       </div>
 
       {/* Filter and Search Controls */}
       <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 items-center">
-          {/* Search input */}
           <form onSubmit={handleSearchSubmit} className="md:col-span-5 relative">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="কোর্স বা শিক্ষকের নাম লিখুন..."
+              placeholder="কোর্স বা ভিডিওর নাম লিখুন..."
               className="w-full pl-9 pr-20 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
@@ -92,7 +112,6 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({
             </button>
           </form>
 
-          {/* Category Dropdown */}
           <div className="md:col-span-4">
             <select
               value={selectedCategory}
@@ -102,27 +121,25 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({
               <option value="all">সকল বিষয় / ক্যাটাগরি</option>
               {categories.map((c) => (
                 <option key={c.slug} value={c.slug}>
-                  {c.name} {c.courseCount > 0 ? `(${c.courseCount})` : ''}
+                  {c.name}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Sort By Dropdown */}
           <div className="md:col-span-3">
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
               className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C] text-slate-800"
             >
-              <option value="newest">নতুনত্ব অনুযায়ী (নতুন প্রথমে)</option>
-              <option value="popular">জনপ্রিয়তা অনুযায়ী (সর্বাধিক দেখা)</option>
-              <option value="title">কোর্সের নাম অনুযায়ী (অক্ষরক্রম)</option>
+              <option value="newest">নতুন প্রথমে</option>
+              <option value="popular">জনপ্রিয় প্রথমে</option>
+              <option value="title">নাম অনুযায়ী</option>
             </select>
           </div>
         </div>
 
-        {/* Category Pills (Functional filter buttons) */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar">
           <button
             onClick={() => setSelectedCategory('all')}
@@ -132,7 +149,7 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            সব কোর্স
+            সব ক্যাটাগরি
           </button>
           {categories.slice(0, 8).map((cat) => (
             <button
@@ -150,29 +167,56 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({
         </div>
       </div>
 
-      {/* Courses Grid */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="h-72 bg-slate-100 rounded-xl animate-pulse" />
           ))}
         </div>
-      ) : courses.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
-            <CourseCard
-              key={course.slug}
-              course={course}
-              onSelect={(slug) => navigate(`/courses/${slug}`)}
-            />
-          ))}
+      ) : hasResults ? (
+        <div className="space-y-12">
+          {courses.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#16803C]" />
+                <h2 className="text-xl font-bold text-slate-900">পূর্ণাঙ্গ কোর্স ও প্লেলিস্ট</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {courses.map((course) => (
+                  <CourseCard
+                    key={course.slug}
+                    course={course}
+                    onSelect={(slug) => navigate(`/courses/${slug}`)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {videos.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <Video className="w-5 h-5 text-amber-600" />
+                <h2 className="text-xl font-bold text-slate-900">একক শিক্ষামূলক ভিডিও</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {videos.map((video) => (
+                  <VideoCard
+                    key={video.youtubeId}
+                    video={video}
+                    onSelect={(id) => navigate(`/video/${id}`)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="p-12 text-center bg-white rounded-xl border border-slate-200 space-y-3">
           <BookOpen className="w-12 h-12 text-slate-300 mx-auto" />
-          <h3 className="text-lg font-bold text-slate-800">কোনো কোর্স পাওয়া যায়নি</h3>
+          <h3 className="text-lg font-bold text-slate-800">কোনো ফলাফল পাওয়া যায়নি</h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            আপনার নির্বাচিত ফিল্টার বা সার্চ শব্দের সাথে মিল রেখে কোনো ফলাফল নেই। দয়া করে অন্য কোনো বিষয় বা শব্দ দিয়ে অনুসন্ধান করুন।
+            আপনার নির্বাচিত ফিল্টার বা সার্চ শব্দের সাথে মিল রেখে কোনো কোর্স বা ভিডিও নেই। দয়া করে অন্য কোনো বিষয় বা শব্দ দিয়ে অনুসন্ধান করুন।
           </p>
           <button
             onClick={() => {
