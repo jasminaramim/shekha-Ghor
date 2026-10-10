@@ -45,6 +45,14 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reports', reportsRoutes);
 
+// Lazy DB connection middleware for serverless (Vercel)
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api') && !isDbConnected()) {
+    await connectDB();
+  }
+  next();
+});
+
 async function startServer() {
   // Connect to MongoDB & Seed
   const connected = await connectDB();
@@ -80,6 +88,11 @@ async function startServer() {
   });
 }
 
-startServer().catch((err) => {
-  console.error('Fatal server startup error:', err);
-});
+// Only start the server if not running on Vercel
+if (!process.env.VERCEL) {
+  startServer().catch((err) => {
+    console.error('Fatal server startup error:', err);
+  });
+}
+
+export default app;
