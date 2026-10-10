@@ -353,14 +353,14 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
             </button>
           </div>
 
-          <div className="w-full flex justify-center mb-6">
+          <div className="w-full mb-6 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm">
             <video
               src="/kidsvideo.mp4"
               autoPlay
               controls
               muted
               loop
-              className="w-full max-w-4xl rounded-2xl shadow-xl border-4 border-white/50 backdrop-blur-sm"
+              className="w-full h-auto object-cover"
             />
           </div>
 
@@ -399,6 +399,17 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
           >
             সব ওয়েব ভিডিও দেখুন <ArrowRight className="w-4 h-4" />
           </button>
+        </div>
+
+        <div className="w-full mb-6 rounded-3xl overflow-hidden shadow-xl border border-slate-200">
+          <video
+            src="/techvideo.mp4"
+            autoPlay
+            controls
+            muted
+            loop
+            className="w-full h-auto object-cover"
+          />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

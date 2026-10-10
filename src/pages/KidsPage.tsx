@@ -58,14 +58,14 @@ export const KidsPage: React.FC<KidsPageProps> = ({ navigate }) => {
         </div>
 
         {/* Hero Video */}
-        <div className="w-full max-w-5xl mx-auto flex justify-center">
+        <div className="w-full mb-8 rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white backdrop-blur-sm">
           <video
             src="/kidsvideo.mp4"
             autoPlay
             controls
             muted
             loop
-            className="w-full rounded-[2rem] shadow-2xl border-8 border-white backdrop-blur-sm"
+            className="w-full h-auto object-cover"
           />
         </div>
 
