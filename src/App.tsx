@@ -17,6 +17,8 @@ import { DashboardPage } from './pages/DashboardPage.js';
 import { BookmarksPage } from './pages/BookmarksPage.js';
 import { AdminPage } from './pages/AdminPage.js';
 import { KidsPage } from './pages/KidsPage.js';
+import { ReelsPage } from './pages/ReelsPage.js';
+import { UploadReelPage } from './pages/UploadReelPage.js';
 import { AboutPage, ContactPage, PrivacyPage, TermsPage, DonatePage } from './pages/StaticPages.js';
 
 export default function App() {
@@ -99,6 +101,14 @@ export default function App() {
     // Kids Corner
     if (pathname === '/kids') {
       return <KidsPage navigate={navigate} />;
+    }
+
+    // Reels
+    if (pathname === '/reels') {
+      return <ReelsPage navigate={navigate} />;
+    }
+    if (pathname === '/upload-reel') {
+      return <UploadReelPage navigate={navigate} />;
     }
 
     // Auth

@@ -40,6 +40,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
   const [courses, setCourses] = useState<ICourse[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [allVideos, setAllVideos] = useState<IVideo[]>([]);
+  const [reelsVideos, setReelsVideos] = useState<IVideo[]>([]);
   const [watchHistory, setWatchHistory] = useState<IWatchHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,10 +48,11 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
   useEffect(() => {
     async function loadData() {
       try {
-        const [courseRes, catRes, videoRes] = await Promise.all([
+        const [courseRes, catRes, videoRes, reelsRes] = await Promise.all([
           api.courses.getAll({ limit: 6, sort: 'popular' }),
           api.categories.getAll(),
           api.videos.getAll({ limit: 30, sort: 'popular' }),
+          api.videos.getAll({ limit: 10, category: 'reels', sort: 'newest' })
         ]);
 
         if (courseRes.success && courseRes.courses) {
@@ -61,6 +63,9 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         }
         if (videoRes.success && videoRes.videos) {
           setAllVideos(videoRes.videos);
+        }
+        if (reelsRes.success && reelsRes.videos) {
+          setReelsVideos(reelsRes.videos);
         }
 
         // Load watch history if logged in
@@ -493,6 +498,52 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         </div>
       </section>
 
+      {/* 6.5 শিক্ষামূলক রিলস (Reels) */}
+      {reelsVideos.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                শিক্ষামূলক রিলস (১০ সেকেন্ড)
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                টিকটকের মতো শর্ট ভিডিওতে শিখুন নতুন কিছু
+              </p>
+            </div>
+
+            <button
+              onClick={() => navigate('/reels')}
+              className="text-xs sm:text-sm font-bold text-[#16803C] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              সব রিলস দেখুন <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {reelsVideos.slice(0, 3).map((video) => (
+              <div 
+                key={video.youtubeId} 
+                className="w-full aspect-[9/16] bg-zinc-900 rounded-3xl overflow-hidden relative shadow-lg cursor-pointer group" 
+                onClick={() => navigate(`/reels`)}
+              >
+                {video.youtubeId.startsWith('cloud-') ? (
+                  <video src={video.youtubeUrl} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" muted loop playsInline />
+                ) : (
+                  <img src={video.thumbnailUrl || `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`} alt={video.title} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/95 flex flex-col justify-end p-5">
+                  <h3 className="text-white font-bold text-base line-clamp-2 leading-tight drop-shadow-md">{video.title}</h3>
+                  <p className="text-emerald-400 font-semibold text-xs mt-1">@{video.channelName}</p>
+                </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm shadow-xl group-hover:scale-110 transition-transform border border-white/30">
+                   <Play className="w-6 h-6 text-white fill-current ml-1" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* 7. সকল ক্যাটাগরি ব্রাউজিং সেকশন */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white p-6 sm:p-10 rounded-3xl border border-slate-200 space-y-6">
@@ -501,9 +552,6 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 সকল বিষয়ভিত্তিক ক্যাটাগরি
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1">
-                শেখাঘরের ডেটাবেস থেকে ডাইনামিকভাবে লোড হওয়া সকল শিক্ষামূলক ক্যাটাগরি
-              </p>
             </div>
 
             <button
@@ -512,6 +560,16 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
             >
               সকল ক্যাটাগরি তালিকা ({categories.length}) →
             </button>
+          </div>
+
+          {/* সুন্দর ক্যাটাগরি ব্যানার */}
+          <div className="w-full h-40 sm:h-56 md:h-72 rounded-2xl overflow-hidden shadow-md relative group">
+            <img 
+              src="/category.jpg" 
+              alt="Category Banner" 
+              className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">

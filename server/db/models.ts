@@ -86,6 +86,8 @@ export interface IVideo extends Document {
   order: number;
   courseSlug?: string;
   playlistId?: string;
+  isApproved: boolean;
+  uploadedBy?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -109,6 +111,8 @@ const VideoSchema = new Schema<IVideo>(
     order: { type: Number, default: 0 },
     courseSlug: { type: String, default: '' },
     playlistId: { type: String, default: '' },
+    isApproved: { type: Boolean, default: true },
+    uploadedBy: { type: String, default: '' },
   },
   { timestamps: true }
 );

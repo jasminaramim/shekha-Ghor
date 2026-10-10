@@ -82,6 +82,24 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
+      {/* Video Banner */}
+      <div className="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-3xl overflow-hidden shadow-lg relative group">
+        <video 
+          src="/allcrouse.mp4" 
+          autoPlay 
+          controls
+          loop 
+          playsInline 
+          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end p-6 sm:p-10 pointer-events-none">
+          <div className="text-white space-y-2 pointer-events-auto">
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight drop-shadow-md">সকল কোর্স ও ভিডিও</h2>
+            <p className="text-sm sm:text-base font-medium opacity-90 drop-shadow-sm">আপনার পছন্দের কোর্স বেছে নিন এবং শেখা শুরু করুন</p>
+          </div>
+        </div>
+      </div>
+
       {/* Page Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">

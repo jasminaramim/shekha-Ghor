@@ -67,6 +67,32 @@ export const VideoWatchPage: React.FC<VideoWatchPageProps> = ({ id, navigate }) 
     );
   }
 
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto py-24 text-center space-y-4 px-4">
+        <div className="w-16 h-16 bg-emerald-100 text-[#16803C] rounded-full flex items-center justify-center mx-auto mb-4">
+          <Play className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900">লগইন প্রয়োজন</h2>
+        <p className="text-sm text-slate-600">ভিডিও দেখতে অনুগ্রহ করে আপনার অ্যাকাউন্টে লগইন করুন।</p>
+        <div className="flex justify-center gap-3 mt-6">
+          <button
+            onClick={() => navigate('/login')}
+            className="px-6 py-2.5 bg-[#16803C] hover:bg-[#105C2B] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+          >
+            লগইন করুন
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+          >
+            ফিরে যান
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!video) {
     return (
       <div className="max-w-md mx-auto py-20 text-center space-y-3">

@@ -36,6 +36,24 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({ navigate }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
+      {/* Video Banner */}
+      <div className="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-3xl overflow-hidden shadow-lg relative group">
+        <video 
+          src="/allcategories.mp4" 
+          autoPlay 
+          controls
+          loop 
+          playsInline 
+          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end p-6 sm:p-10">
+          <div className="text-white space-y-2">
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight drop-shadow-md">সবগুলো বিষয় একসাথে</h2>
+            <p className="text-sm sm:text-base font-medium opacity-90 drop-shadow-sm">আপনার পছন্দের বিষয় বেছে নিন এবং শেখা শুরু করুন</p>
+          </div>
+        </div>
+      </div>
+
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>

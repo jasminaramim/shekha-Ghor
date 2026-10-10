@@ -1,6 +1,24 @@
 import { Router, Request, Response } from 'express';
 import { Video, Category, WatchHistory } from '../db/models.js';
-import { optionalAuth, AuthRequest } from '../middleware/auth.js';
+import { optionalAuth, AuthRequest, authenticate, requireAdmin } from '../middleware/auth.js';
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+
+// Setup local upload directory (Acting as a mock for cloud storage until keys are provided)
+const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'reels');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'reel-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
 
 const router = Router();
 
@@ -186,6 +204,95 @@ router.get('/user/watch-history', optionalAuth, async (req: AuthRequest, res: Re
     res.json({ success: true, history });
   } catch (error) {
     res.status(500).json({ success: false, message: 'হিস্টোরি লোড করতে সমস্যা হয়েছে।' });
+  }
+});
+
+// Upload Reel Route (User and Admin)
+router.post('/upload-reel', authenticate, upload.single('video'), async (req: AuthRequest, res: Response) => {
+  try {
+    const { title, description, categorySlug, youtubeUrl } = req.body;
+    
+    if (!req.file && !youtubeUrl) {
+      return res.status(400).json({ success: false, message: 'ভিডিও ফাইল অথবা ইউটিউব লিংক আবশ্যক।' });
+    }
+
+    let fileUrl = '';
+    let mockId = '';
+    let thumb = '';
+
+    if (req.file) {
+      fileUrl = `/uploads/reels/${req.file.filename}`;
+      mockId = 'cloud-' + Date.now();
+    } else if (youtubeUrl) {
+      fileUrl = youtubeUrl;
+      const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+      const match = youtubeUrl.match(regex);
+      if (match && match[1]) {
+        mockId = match[1];
+        thumb = `https://img.youtube.com/vi/${mockId}/hqdefault.jpg`;
+      } else {
+        return res.status(400).json({ success: false, message: 'সঠিক ইউটিউব লিংক দিন।' });
+      }
+    }
+
+    const existingVideo = await Video.findOne({ youtubeId: mockId });
+    if (existingVideo) {
+      return res.status(400).json({ success: false, message: 'এই ভিডিওটি ইতিমধ্যে সিস্টেমে রয়েছে।' });
+    }
+
+    const isAdmin = req.user?.role === 'admin';
+
+    const newReel = new Video({
+      youtubeId: mockId,
+      youtubeUrl: fileUrl,
+      title,
+      description,
+      channelName: req.user?.name || 'User',
+      categorySlug: categorySlug || 'reels',
+      audience: 'all',
+      difficultyLevel: 'all',
+      duration: '১ মিনিট',
+      isPublished: isAdmin ? true : false,
+      isApproved: isAdmin ? true : false,
+      uploadedBy: req.user?._id,
+      thumbnailUrl: thumb,
+    });
+
+    await newReel.save();
+
+    res.json({ 
+      success: true, 
+      message: isAdmin ? 'রিলস সফলভাবে আপলোড এবং পাবলিশ হয়েছে।' : 'রিলস আপলোড হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে এটি সবার জন্য দৃশ্যমান হবে।', 
+      video: newReel 
+    });
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ success: false, message: 'আপলোড করতে সমস্যা হয়েছে।' });
+  }
+});
+
+// Admin: Get Pending Reels
+router.get('/admin/pending-reels', authenticate, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const pendingReels = await Video.find({ categorySlug: 'reels', isApproved: false })
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json({ success: true, videos: pendingReels });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'পেন্ডিং রিলস লোড করতে সমস্যা হয়েছে।' });
+  }
+});
+
+// Admin: Approve Reel
+router.put('/admin/approve-reel/:id', authenticate, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const video = await Video.findByIdAndUpdate(req.params.id, { isApproved: true, isPublished: true }, { new: true });
+    if (!video) {
+      return res.status(404).json({ success: false, message: 'রিলস পাওয়া যায়নি।' });
+    }
+    res.json({ success: true, message: 'রিলস সফলভাবে অ্যাপ্রুভ ও পাবলিশ করা হয়েছে!' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'অ্যাপ্রুভ করতে সমস্যা হয়েছে।' });
   }
 });
 

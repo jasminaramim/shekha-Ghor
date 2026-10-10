@@ -49,6 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, navigate }) => {
 
   const navLinks = [
     { label: 'হোম', path: '/' },
+    { label: 'রিলস', path: '/reels' },
     { label: 'সকল ক্যাটাগরি', path: '/categories' },
     { label: 'সকল কোর্স', path: '/courses' },
     { label: 'জনপ্রিয় ভিডিও', path: '/courses?sort=popular' },

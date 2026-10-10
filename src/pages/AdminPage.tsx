@@ -51,8 +51,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
 
   // Tab State
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'categories' | 'youtube-import' | 'videos-list' | 'courses' | 'reports' | 'logs'
+    'overview' | 'categories' | 'youtube-import' | 'video-upload' | 'videos-list' | 'pending-reels' | 'courses' | 'reports' | 'logs'
   >('categories');
+
+  const [pendingReels, setPendingReels] = useState<IVideo[]>([]);
+  
+  // Local Video Upload State
+  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadDesc, setUploadDesc] = useState('');
+  const [uploadCategory, setUploadCategory] = useState('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const [uploadYoutubeUrl, setUploadYoutubeUrl] = useState('');
 
   // Data States
   const [stats, setStats] = useState<IAdminStats | null>(null);
@@ -135,6 +146,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
       if (videosRes.success && videosRes.videos) setVideos(videosRes.videos);
       if (reportsRes.success && reportsRes.reports) setReports(reportsRes.reports);
       if (logsRes.success && logsRes.logs) setAuditLogs(logsRes.logs);
+
+      // Load pending reels
+      try {
+        const pReelsRes = await fetch('/api/videos/admin/pending-reels', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('shekhaghor_token')}` }
+        });
+        const pReelsData = await pReelsRes.json();
+        if (pReelsData.success) {
+          setPendingReels(pReelsData.videos);
+        }
+      } catch (err) {
+        console.error('Pending reels load error:', err);
+      }
     } catch (err) {
       console.error('Admin data load error:', err);
     } finally {
@@ -511,12 +535,28 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
             + ইউটিউব ভিডিও আমদানি
           </button>
           <button
+            onClick={() => setActiveTab('video-upload')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
+              activeTab === 'video-upload' ? 'bg-white text-[#16803C] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            + লোকাল ভিডিও আপলোড
+          </button>
+          <button
             onClick={() => setActiveTab('videos-list')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'videos-list' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             ভিডিও তালিকা ({videos.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('pending-reels')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
+              activeTab === 'pending-reels' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            পেন্ডিং রিলস ({pendingReels.length})
           </button>
           <button
             onClick={() => setActiveTab('courses')}
@@ -880,6 +920,136 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
               </form>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Tab Video Upload */}
+      {activeTab === 'video-upload' && (
+        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 className="text-lg font-bold mb-4 text-slate-900">সরাসরি লোকাল ভিডিও আপলোড করুন</h3>
+          <p className="text-sm text-slate-500 mb-6">সরাসরি আপনার কম্পিউটার বা মোবাইল থেকে ভিডিও আপলোড করুন।</p>
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            if (!uploadTitle) return alert('টাইটেল দিন।');
+            if (!uploadFile && !uploadYoutubeUrl) return alert('ভিডিও ফাইল অথবা ইউটিউব লিংক দিন।');
+            setUploading(true);
+            const fd = new FormData();
+            fd.append('title', uploadTitle);
+            fd.append('description', uploadDesc);
+            fd.append('categorySlug', uploadCategory || 'reels');
+            if (uploadFile) fd.append('video', uploadFile);
+            if (uploadYoutubeUrl) fd.append('youtubeUrl', uploadYoutubeUrl);
+            
+            try {
+              const res = await fetch('/api/videos/upload-reel', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${localStorage.getItem('shekhaghor_token')}` },
+                body: fd
+              });
+              const data = await res.json();
+              if (data.success) {
+                alert('ভিডিও আপলোড সফল!');
+                setUploadTitle('');
+                setUploadDesc('');
+                setUploadFile(null);
+                loadAdminData();
+              } else alert(data.message);
+            } catch(err) { alert('সার্ভার সমস্যা হয়েছে।'); }
+            finally { setUploading(false); }
+          }} className="space-y-4 max-w-xl">
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-slate-700">ভিডিও টাইটেল *</label>
+              <input type="text" value={uploadTitle} onChange={e=>setUploadTitle(e.target.value)} required placeholder="যেমন: নতুন রিলস বা কোর্স ভিডিও" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#16803C] focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-slate-700">ক্যাটাগরি</label>
+              <select value={uploadCategory} onChange={e=>setUploadCategory(e.target.value)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#16803C] focus:outline-none">
+                <option value="reels">রিলস (Reels) - ডিফল্ট</option>
+                {categories.map(c => <option key={c.slug} value={c.slug}>{c.parentSlug ? `↳ ${c.name}` : c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-slate-700">বিবরণ (Optional)</label>
+              <textarea value={uploadDesc} onChange={e=>setUploadDesc(e.target.value)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#16803C] focus:outline-none" rows={3} />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-slate-700">ভিডিও আপলোডের মাধ্যম *</label>
+              <div className="flex gap-4 mb-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="adminUploadMethod" checked={!uploadYoutubeUrl} onChange={() => setUploadYoutubeUrl('')} className="w-4 h-4 text-[#16803C]" />
+                  <span className="text-sm font-medium">লোকাল ভিডিও ফাইল</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="adminUploadMethod" checked={!!uploadYoutubeUrl} onChange={() => { setUploadFile(null); setUploadYoutubeUrl('https://'); }} className="w-4 h-4 text-[#16803C]" />
+                  <span className="text-sm font-medium">ইউটিউব লিংক</span>
+                </label>
+              </div>
+            </div>
+
+            {uploadYoutubeUrl !== '' ? (
+              <div>
+                <label className="block text-sm font-semibold mb-1 text-slate-700">ইউটিউব ভিডিও লিংক *</label>
+                <input
+                  type="url"
+                  value={uploadYoutubeUrl === 'https://' ? '' : uploadYoutubeUrl}
+                  onChange={(e) => setUploadYoutubeUrl(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-semibold mb-1 text-slate-700">ভিডিও ফাইল *</label>
+                <input type="file" accept="video/*" onChange={e=>setUploadFile(e.target.files?.[0] || null)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg" />
+              </div>
+            )}
+            <button type="submit" disabled={uploading} className="w-full py-3 bg-[#16803C] hover:bg-[#105C2B] text-white rounded-xl font-bold shadow-md">
+              {uploading ? 'আপলোড হচ্ছে...' : 'ভিডিও আপলোড করুন'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Tab Pending Reels */}
+      {activeTab === 'pending-reels' && (
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden space-y-4">
+           <div className="p-4 sm:p-6 border-b border-slate-200">
+             <h3 className="text-base font-bold text-slate-900">পেন্ডিং রিলস ও আপলোড করা ভিডিও ({pendingReels.length} টি)</h3>
+           </div>
+           <div className="p-4 sm:p-6">
+              {pendingReels.length === 0 ? (
+                <div className="text-center py-10 text-slate-500">
+                   <p>কোনো পেন্ডিং ভিডিও নেই।</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {pendingReels.map(reel => (
+                    <div key={reel._id} className="border border-slate-200 rounded-xl p-4 flex flex-col justify-between bg-slate-50">
+                       <div>
+                         <p className="font-bold text-sm text-slate-900 line-clamp-2">{reel.title}</p>
+                         <p className="text-xs text-[#16803C] font-semibold mt-1">Category: {reel.categorySlug}</p>
+                         <p className="text-xs text-slate-500 mt-2 line-clamp-3">{reel.description}</p>
+                       </div>
+                       <div className="mt-4 flex gap-2">
+                         <button onClick={async () => {
+                           if(confirm('এই ভিডিওটি ওয়েবসাইটের জন্য অ্যাপ্রুভ করতে চান?')){
+                             try {
+                               await fetch(`/api/videos/admin/approve-reel/${reel._id}`, {method: 'PUT', headers: {Authorization: `Bearer ${localStorage.getItem('shekhaghor_token')}`}});
+                               loadAdminData();
+                             } catch(e) {}
+                           }
+                         }} className="flex-1 py-2 bg-[#16803C] hover:bg-[#105C2B] text-white rounded-lg text-xs font-bold transition">
+                           অ্যাপ্রুভ করুন
+                         </button>
+                         <button onClick={() => handleDeleteVideo(reel._id)} className="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg">
+                           <Trash2 className="w-4 h-4" />
+                         </button>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+           </div>
         </div>
       )}
 

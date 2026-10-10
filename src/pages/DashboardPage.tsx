@@ -120,6 +120,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate }) => {
         </div>
       </div>
 
+      <div className="flex gap-4">
+        <button
+          onClick={() => navigate('/upload-reel')}
+          className="px-6 py-3 bg-[#16803C] hover:bg-[#105C2B] text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
+          রিলস যোগ করুন
+        </button>
+      </div>
+
       {/* 2. Ongoing Learning Progress */}
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-slate-900">আপনার চলমান শেখার অগ্রগতি</h2>
