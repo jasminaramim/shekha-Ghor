@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary-green: #16803C;
+    --dark-green: #105C2B;
+    --bright-yellow: #FACC15;
+    --light-yellow: #FEF9C3;
+    --bg-light: #F7FAF5;
+    --text-main: #1F2937;
+  }
+
+  body {
+    font-family: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #F7FAF5;
+    color: #1F2937;
+  }
+}
+
+/* Custom scrollbar for lesson playlists and notes */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

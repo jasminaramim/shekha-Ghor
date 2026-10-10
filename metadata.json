@@ -1,0 +1,6 @@
+{
+  "name": "শেখাঘর — বাংলা অনলাইন শিক্ষামূলক ভিডিও প্ল্যাটফর্ম",
+  "description": "শিখুন নিজের গতিতে, এগিয়ে যান আত্মবিশ্বাসে। সম্পূর্ণ বাংলাভিত্তিক অনলাইন শিক্ষামূলক ভিডিও, কোর্স এবং প্লেলিস্ট প্ল্যাটফর্ম।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
