@@ -208,7 +208,6 @@ export const TermsPage: React.FC<StaticPageProps> = () => {
         </p>
       </div>
     </div>
-    </div>
   );
 };
 
