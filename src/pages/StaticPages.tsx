@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Logo } from '../components/Logo.js';
-import { Mail, Phone, MapPin, Send, CheckCircle2, Shield, BookOpen, Heart, Smartphone, CreditCard, Banknote, Target, Award, PlayCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, Shield, BookOpen, Heart, Smartphone, CreditCard, Banknote, Target, Award, PlayCircle, QrCode } from 'lucide-react';
 
 interface StaticPageProps {
   navigate: (path: string) => void;
@@ -278,6 +278,18 @@ export const DonatePage: React.FC<StaticPageProps> = () => {
           অ্যাকাউন্ট নম্বর: 1234567890<br />
           ব্রাঞ্চ: ধানমন্ডি শাখা, ঢাকা
         </p>
+      </div>
+
+      <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm max-w-sm mx-auto text-center space-y-6">
+        <div className="space-y-2">
+          <h3 className="text-xl font-bold text-slate-900">কিউআর কোড স্ক্যান করুন</h3>
+          <p className="text-sm text-slate-500">যেকোনো পেমেন্ট অ্যাপ থেকে স্ক্যান করে ডোনেট করুন</p>
+        </div>
+        <div className="bg-slate-50 p-6 rounded-xl inline-block border-2 border-dashed border-emerald-200">
+          {/* Replace this QrCode icon with an actual img tag when you have the QR image */}
+          <QrCode className="w-32 h-32 text-slate-400 mx-auto" />
+        </div>
+        <p className="text-xs text-slate-400 font-medium">bKash • Nagad • Rocket</p>
       </div>
     </div>
   );
