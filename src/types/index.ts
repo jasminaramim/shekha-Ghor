@@ -45,8 +45,25 @@ export interface IVideo {
   duration: string;
   isPublished: boolean;
   viewsCount: number;
+  channelAvatar?: string;
+  isFromYouTube?: boolean;
+  badgeText?: string;
   order: number;
   createdAt?: string;
+}
+
+export interface IYouTubeVideo {
+  youtubeId: string;
+  title: string;
+  description?: string;
+  channelName: string;
+  channelAvatar?: string;
+  thumbnailUrl: string;
+  duration?: string;
+  viewsCount?: string;
+  publishedTime?: string;
+  isFromYouTube: true;
+  badgeText?: string;
 }
 
 export interface IWatchHistoryItem {

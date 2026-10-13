@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ICategory } from '../types/index.js';
 import { api } from '../services/api.js';
 import { CategoryCard } from '../components/CategoryCard.js';
+import { ScrollVideo } from '../components/ScrollVideo.js';
 import { Search, Compass } from 'lucide-react';
 
 interface CategoriesPageProps {
@@ -38,10 +39,10 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({ navigate }) => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
       {/* Video Banner */}
       <div className="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-3xl overflow-hidden shadow-lg relative group">
-        <video 
+        <ScrollVideo 
           src="/allcategories.mp4" 
-          autoPlay 
           controls
+          muted
           loop 
           playsInline 
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"

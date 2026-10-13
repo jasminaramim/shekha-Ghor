@@ -9,6 +9,7 @@ import {
   IReport,
   IAuditLog,
   ILesson,
+  IYouTubeVideo,
 } from '../types/index.js';
 
 const API_BASE = '/api';
@@ -137,6 +138,11 @@ export const api = {
     },
     async getWatchHistory() {
       return request<{ history: IWatchHistoryItem[] }>('/videos/user/watch-history');
+    },
+    async searchYouTube(query: string) {
+      return request<{ results: IYouTubeVideo[]; total: number }>(
+        `/videos/youtube-search?q=${encodeURIComponent(query)}`
+      );
     },
   },
 
@@ -278,11 +284,12 @@ export const api = {
     async deleteVideo(id: string) {
       return request(`/admin/videos/${id}`, { method: 'DELETE' });
     },
-    async getVideos(params?: { category?: string; search?: string; page?: number }) {
+    async getVideos(params?: { category?: string; search?: string; page?: number; limit?: number }) {
       const query = new URLSearchParams();
       if (params?.category) query.append('category', params.category);
       if (params?.search) query.append('search', params.search);
       if (params?.page) query.append('page', params.page.toString());
+      if (params?.limit) query.append('limit', params.limit.toString());
       return request<{ videos: IVideo[]; total: number; totalPages: number }>(`/admin/videos?${query.toString()}`);
     },
     async createCourse(courseData: Partial<ICourse>) {

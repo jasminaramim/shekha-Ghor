@@ -67,31 +67,7 @@ export const VideoWatchPage: React.FC<VideoWatchPageProps> = ({ id, navigate }) 
     );
   }
 
-  if (!user) {
-    return (
-      <div className="max-w-md mx-auto py-24 text-center space-y-4 px-4">
-        <div className="w-16 h-16 bg-emerald-100 text-[#16803C] rounded-full flex items-center justify-center mx-auto mb-4">
-          <Play className="w-8 h-8" />
-        </div>
-        <h2 className="text-2xl font-bold text-slate-900">লগইন প্রয়োজন</h2>
-        <p className="text-sm text-slate-600">ভিডিও দেখতে অনুগ্রহ করে আপনার অ্যাকাউন্টে লগইন করুন।</p>
-        <div className="flex justify-center gap-3 mt-6">
-          <button
-            onClick={() => navigate('/login')}
-            className="px-6 py-2.5 bg-[#16803C] hover:bg-[#105C2B] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
-          >
-            লগইন করুন
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
-          >
-            ফিরে যান
-          </button>
-        </div>
-      </div>
-    );
-  }
+
 
   if (!video) {
     return (
@@ -150,10 +126,26 @@ export const VideoWatchPage: React.FC<VideoWatchPageProps> = ({ id, navigate }) 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
         {/* Left Column: Big Player & Video Details */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Responsive YouTube Embed Player */}
+          {/* Guest Info Banner */}
+          {!user && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-2.5 rounded-xl flex items-center justify-between gap-2 shadow-2xs">
+              <span className="flex items-center gap-1.5">
+                <span>💡</span>
+                <span>আপনি অতিথি হিসেবে দেখছেন। ওয়াচ হিস্ট্রি ও বুকমার্ক সংরক্ষণ করতে লগইন করুন।</span>
+              </span>
+              <button
+                onClick={() => navigate('/login')}
+                className="px-3 py-1 bg-[#16803C] hover:bg-[#105C2B] text-white text-xs font-semibold rounded-lg shrink-0 transition-colors cursor-pointer"
+              >
+                লগইন করুন
+              </button>
+            </div>
+          )}
+
+          {/* YouTube Embed Player */}
           <div className="relative aspect-video w-full bg-black rounded-2xl overflow-hidden shadow-lg border border-slate-800">
             <iframe
-              src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+              src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`}
               title={video.title}
               className="w-full h-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -164,7 +156,15 @@ export const VideoWatchPage: React.FC<VideoWatchPageProps> = ({ id, navigate }) 
           {/* Action Bar & Metadata */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
+                {video.isFromYouTube && (
+                  <div className="inline-flex items-center gap-1.5 bg-[#FF0000] text-white px-2.5 py-1 rounded-md text-[11px] font-bold shadow-xs">
+                    <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                    <span>This video is on YouTube</span>
+                  </div>
+                )}
                 <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug">
                   {video.title}
                 </h1>

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ICourse, ICategory, IVideo, IWatchHistoryItem } from '../types/index.js';
+import { ICourse, ICategory, IVideo, IWatchHistoryItem, IYouTubeVideo } from '../types/index.js';
 import { api } from '../services/api.js';
 import { CourseCard } from '../components/CourseCard.js';
 import { VideoCard } from '../components/VideoCard.js';
 import { CategoryCard } from '../components/CategoryCard.js';
+import { YouTubeCard } from '../components/YouTubeCard.js';
+import { YouTubePlayerModal } from '../components/YouTubePlayerModal.js';
 import { Logo } from '../components/Logo.js';
+import { ScrollVideo } from '../components/ScrollVideo.js';
 import { useAuth } from '../context/AuthContext.js';
 import {
   Search,
@@ -44,6 +47,43 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
   const [watchHistory, setWatchHistory] = useState<IWatchHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // YouTube category-wise section state
+  const [youtubeCategory, setYoutubeCategory] = useState<string>('all');
+  const [youtubeVideos, setYoutubeVideos] = useState<IYouTubeVideo[]>([]);
+  const [youtubeLoading, setYoutubeLoading] = useState<boolean>(false);
+  const [modalVideo, setModalVideo] = useState<IYouTubeVideo | null>(null);
+
+  const youtubeCategories = [
+    { id: 'all', label: 'সব বিষয় (All)', query: 'বাংলা শিক্ষামূলক কোর্স ও টিউটোরিয়াল' },
+    { id: 'web-dev', label: '💻 ওয়েব ডেভেলপমেন্ট', query: 'web development bangla tutorial' },
+    { id: 'python', label: '🐍 পাইথন ও কোডিং', query: 'python programming bangla tutorial' },
+    { id: 'design', label: '🎨 ডিজাইন ও ফ্রিল্যান্সিং', query: 'graphics design freelancing bangla' },
+    { id: 'english', label: '🗣️ স্পোকেন ইংলিশ', query: 'spoken english bangla class' },
+    { id: 'kids', label: '👶 শিশু ও কিশোর শিক্ষা', query: 'kids rhymes educational cartoon bangla' },
+    { id: 'math', label: '📐 গণিত ও বিজ্ঞান', query: 'math shortcut tricks science bangla' },
+  ];
+
+  useEffect(() => {
+    const selected = youtubeCategories.find((c) => c.id === youtubeCategory);
+    const q = selected ? selected.query : 'বাংলা শিক্ষামূলক কোর্স ও ভিডিও';
+
+    async function loadYouTubeCategoryVideos() {
+      setYoutubeLoading(true);
+      try {
+        const res = await api.videos.searchYouTube(q);
+        if (res.success && res.results && res.results.length > 0) {
+          setYoutubeVideos(res.results.slice(0, 8));
+        }
+      } catch (err) {
+        console.error('Error fetching youtube videos on homepage:', err);
+      } finally {
+        setYoutubeLoading(false);
+      }
+    }
+
+    loadYouTubeCategoryVideos();
+  }, [youtubeCategory]);
 
   useEffect(() => {
     async function loadData() {
@@ -107,6 +147,13 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
   return (
     <div className="space-y-16 lg:space-y-24 pb-20">
+      {/* YouTube Theater Modal Player */}
+      <YouTubePlayerModal
+        video={modalVideo}
+        onClose={() => setModalVideo(null)}
+        onNavigateToWatch={(id) => navigate(`/video/${id}`)}
+      />
+
       {/* 1. Hero Section (Meticulously matched to user's uploaded banner image) */}
       <section className="relative overflow-hidden bg-gradient-to-r from-[#F0F7ED] via-[#F7FAF5] to-[#FEFDF2] pt-8 sm:pt-14 pb-14 sm:pb-20 border-b border-emerald-950/10">
         {/* Soft Natural Atmospheric Background Ornaments */}
@@ -276,11 +323,10 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               `}</style>
 
               <div className="animated-gradient-border w-full max-w-2xl shadow-[0_20px_50px_-12px_rgba(22,128,60,0.5)] relative z-10">
-                <video 
+                <ScrollVideo 
                   src="/herovideo.mp4" 
                   controls 
                   playsInline 
-                  autoPlay
                   muted
                   loop
                   className="w-full h-auto rounded-[2rem] object-cover bg-white"
@@ -316,9 +362,8 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         </div>
 
         <div className="w-full mb-6 rounded-3xl overflow-hidden shadow-xl border border-slate-200">
-          <video
+          <ScrollVideo
             src="/techvideo.mp4"
-            autoPlay
             controls
             muted
             loop
@@ -362,9 +407,8 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
           </div>
 
           <div className="w-full mb-6 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm">
-            <video
+            <ScrollVideo
               src="/kidsvideo.mp4"
-              autoPlay
               controls
               muted
               loop
@@ -464,10 +508,80 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         </section>
       )}
 
+      {/* 5.5 ভিডিও ফ্রম ইউটিউব (Videos from YouTube - Category-wise) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="bg-gradient-to-br from-red-50/70 via-white to-rose-50/60 p-6 sm:p-8 rounded-3xl border border-red-200/80 shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-red-600 px-3 py-1 rounded-full shadow-2xs">
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                <span>সরাসরি YouTube সংগ্রহ</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                <span>ভিডিও ফ্রম ইউটিউব (Videos from YouTube)</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+                শেখাঘরের বাইরেও সরাসরি YouTube থেকে ক্যাটাগরিভিত্তিক সেরা বাংলা শিক্ষামূলক ভিডিও ও টিউটোরিয়ালগুলো এক ক্লিকে উপভোগ করুন
+              </p>
+            </div>
 
+            <button
+              onClick={() => navigate('/courses?sort=popular')}
+              className="text-xs sm:text-sm font-bold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer bg-white px-4 py-2 rounded-xl border border-red-200 shadow-2xs self-start sm:self-auto hover:bg-red-50/50 transition-colors"
+            >
+              <span>সব YouTube ভিডিও দেখুন</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
 
+          {/* Category Tabs / Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar scroll-smooth">
+            {youtubeCategories.map((cat) => {
+              const isActive = youtubeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setYoutubeCategory(cat.id)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                    isActive
+                      ? 'bg-red-600 text-white shadow-sm ring-1 ring-red-700'
+                      : 'bg-white text-slate-700 hover:bg-red-50 border border-slate-200/90 hover:border-red-200'
+                  }`}
+                >
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
 
-      {/* 6. প্রোগ্রামিং, এআই ও ডিজাইন বিভাগ */}
+          {/* YouTube Video Cards Grid */}
+          {youtubeLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-2xl p-4 border border-slate-200 animate-pulse space-y-3">
+                  <div className="aspect-video bg-slate-200 rounded-xl w-full" />
+                  <div className="h-4 bg-slate-200 rounded w-5/6" />
+                  <div className="h-3 bg-slate-100 rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {youtubeVideos.map((video) => (
+                <YouTubeCard
+                  key={video.youtubeId}
+                  video={video}
+                  layout="grid"
+                  onSelect={(id) => navigate(`/video/${id}`)}
+                  onQuickPlay={(v) => setModalVideo(v)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
@@ -648,9 +762,8 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
           </div>
 
           <div className="flex-1 w-full max-w-md lg:max-w-lg shrink-0 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 relative">
-            <video
+            <ScrollVideo
               src="/login.mp4"
-              autoPlay
               controls
               muted
               loop

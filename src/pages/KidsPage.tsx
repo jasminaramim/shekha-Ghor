@@ -3,6 +3,7 @@ import { ICourse, IVideo } from '../types/index.js';
 import { api } from '../services/api.js';
 import { CourseCard } from '../components/CourseCard.js';
 import { VideoCard } from '../components/VideoCard.js';
+import { ScrollVideo } from '../components/ScrollVideo.js';
 import { Baby, Star, Heart, Smile } from 'lucide-react';
 
 interface KidsPageProps {
@@ -59,9 +60,8 @@ export const KidsPage: React.FC<KidsPageProps> = ({ navigate }) => {
 
         {/* Hero Video */}
         <div className="w-full mb-8 rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white backdrop-blur-sm">
-          <video
+          <ScrollVideo
             src="/kidsvideo.mp4"
-            autoPlay
             controls
             muted
             loop

@@ -20,8 +20,11 @@ import { KidsPage } from './pages/KidsPage.js';
 import { ReelsPage } from './pages/ReelsPage.js';
 import { UploadReelPage } from './pages/UploadReelPage.js';
 import { AboutPage, ContactPage, PrivacyPage, TermsPage, DonatePage } from './pages/StaticPages.js';
+import { useGlobalVideoScrollSync } from './hooks/useGlobalVideoScrollSync.js';
 
 export default function App() {
+  useGlobalVideoScrollSync();
+
   const [currentPath, setCurrentPath] = useState(
     typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/'
   );

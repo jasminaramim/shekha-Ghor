@@ -75,7 +75,7 @@ export const ReelsPage: React.FC<ReelsPageProps> = ({ navigate }) => {
                 />
               ) : (
                 <iframe
-                  src={`https://www.youtube.com/embed/${reel.youtubeId}?autoplay=0&loop=1&controls=0&modestbranding=1&rel=0&playsinline=1`}
+                  src={`https://www.youtube.com/embed/${reel.youtubeId}?autoplay=0&loop=1&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1`}
                   title={reel.title}
                   className="w-full aspect-[9/16] pointer-events-auto max-h-[100dvh]"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

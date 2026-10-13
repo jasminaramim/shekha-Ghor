@@ -152,12 +152,12 @@ export const LearnPage: React.FC<LearnPageProps> = ({
   // Extract or ensure valid embed URL
   let embedUrl = '';
   if (currentLesson.youtubeId) {
-    embedUrl = `https://www.youtube.com/embed/${currentLesson.youtubeId}?autoplay=1&rel=0&modestbranding=1`;
+    embedUrl = `https://www.youtube.com/embed/${currentLesson.youtubeId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
   } else if (currentLesson.videoUrl) {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = currentLesson.videoUrl.match(regExp);
     if (match && match[2].length === 11) {
-      embedUrl = `https://www.youtube.com/embed/${match[2]}?autoplay=1&rel=0&modestbranding=1`;
+      embedUrl = `https://www.youtube.com/embed/${match[2]}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
     } else {
       embedUrl = currentLesson.videoUrl;
     }

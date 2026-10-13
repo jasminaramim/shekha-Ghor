@@ -415,7 +415,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
     try {
       let res;
       if (editingCourse) {
-        res = await api.admin.updateCourse(editingCourse._id || editingCourse.id, courseData);
+        res = await api.admin.updateCourse(editingCourse._id || editingCourse.id || '', courseData);
       } else {
         res = await api.admin.createCourse(courseData);
       }
