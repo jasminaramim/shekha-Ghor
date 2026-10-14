@@ -290,20 +290,20 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               </div>
             </div>
 
-            {/* Right Column: Hero Video & Floating Icons */}
+            {/* Right Column: Hero Image & Floating Elements */}
             <div className="lg:col-span-6 relative flex justify-center items-center mt-12 lg:mt-0">
               
-              {/* Floating Elements (Tech, Code, Leaf, Cartoon) */}
-              <div className="absolute -top-4 -left-6 sm:top-4 sm:-left-8 bg-white p-3 rounded-2xl shadow-xl border border-emerald-100 animate-bounce z-20" style={{ animationDuration: '3s' }}>
+              {/* Floating Elements */}
+              <div className="absolute -top-5 -left-5 sm:top-2 sm:-left-8 bg-white/95 backdrop-blur-sm p-3.5 rounded-2xl shadow-xl border border-emerald-100 animate-bounce z-20" style={{ animationDuration: '3s' }}>
                 <Code className="w-6 h-6 text-[#16803C]" />
               </div>
-              <div className="absolute -top-8 right-8 sm:-top-10 sm:right-16 bg-white p-3 rounded-2xl shadow-xl border border-blue-100 animate-bounce z-20" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-                <Terminal className="w-6 h-6 text-blue-600" />
+              <div className="absolute -top-7 right-6 sm:-top-8 sm:right-12 bg-white/95 backdrop-blur-sm p-3.5 rounded-2xl shadow-xl border border-blue-100 animate-bounce z-20" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+                <Sparkles className="w-6 h-6 text-amber-500" />
               </div>
-              <div className="absolute top-1/2 -left-10 sm:-left-12 bg-white p-3 rounded-2xl shadow-xl border border-amber-100 animate-bounce z-20" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }}>
+              <div className="absolute top-1/2 -left-8 sm:-left-12 bg-white/95 backdrop-blur-sm p-3 rounded-2xl shadow-xl border border-amber-100 animate-bounce z-20" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }}>
                 <Smile className="w-6 h-6 text-amber-500" />
               </div>
-              <div className="absolute -bottom-6 right-4 sm:-bottom-8 sm:right-10 bg-white p-3 rounded-2xl shadow-xl border border-green-100 animate-bounce z-20" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}>
+              <div className="absolute -bottom-5 right-6 sm:-bottom-7 sm:right-12 bg-white/95 backdrop-blur-sm p-3.5 rounded-2xl shadow-xl border border-green-100 animate-bounce z-20" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}>
                 <Leaf className="w-6 h-6 text-green-500" />
               </div>
 
@@ -314,23 +314,44 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                   100% { background-position: 0% 50%; }
                 }
                 .animated-gradient-border {
-                  background: linear-gradient(90deg, #16803C, #FACC15, #16803C, #FACC15);
+                  background: linear-gradient(90deg, #16803C, #FACC15, #105C2B, #FACC15);
                   background-size: 300% 300%;
-                  animation: run-border 4s linear infinite;
+                  animation: run-border 5s linear infinite;
                   padding: 6px;
                   border-radius: 2.3rem;
                 }
               `}</style>
 
-              <div className="animated-gradient-border w-full max-w-2xl shadow-[0_20px_50px_-12px_rgba(22,128,60,0.5)] relative z-10">
-                <ScrollVideo 
-                  src="/herovideo.mp4" 
-                  controls 
-                  playsInline 
-                  muted
-                  loop
-                  className="w-full h-auto rounded-[2rem] object-cover bg-white"
-                />
+              {/* Main Image Container */}
+              <div className="animated-gradient-border w-full max-w-2xl shadow-[0_20px_50px_-12px_rgba(22,128,60,0.45)] relative z-10 group">
+                <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 shadow-inner">
+                  <img 
+                    src="/hero.jpg" 
+                    alt="শেখাঘর — আনন্দময় বাংলা অনলাইন শিক্ষা" 
+                    className="w-full h-auto object-cover rounded-[2rem] transition-transform duration-700 ease-out group-hover:scale-105"
+                    loading="eager"
+                  />
+                  
+                  {/* Subtle decorative bottom gradient vignette */}
+                  <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none rounded-b-[2rem]" />
+
+                  {/* Floating badge inside image: Bottom-Left */}
+                  <div className="absolute bottom-4 left-4 sm:bottom-5 sm:left-5 bg-white/95 backdrop-blur-md px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl shadow-xl border border-white/70 flex items-center gap-2.5 z-20">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-100 text-[#16803C] flex items-center justify-center shrink-0 shadow-sm">
+                      <GraduationCap className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-xs sm:text-sm font-bold text-slate-900 block leading-tight">আনন্দময় ও আধুনিক শিক্ষা</span>
+                      <span className="text-[10px] sm:text-[11px] text-[#16803C] font-semibold">ছোট-বড় সবার জন্য উন্মুক্ত</span>
+                    </div>
+                  </div>
+
+                  {/* Floating pill inside image: Top-Right */}
+                  <div className="absolute top-4 right-4 bg-emerald-700/90 backdrop-blur-md text-white text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 border border-white/20 z-20">
+                    <span className="w-2 h-2 rounded-full bg-yellow-400 animate-ping" />
+                    <span>বাংলায় ১০০% ফ্রি</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
