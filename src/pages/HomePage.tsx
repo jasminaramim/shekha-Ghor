@@ -91,7 +91,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         const [courseRes, catRes, videoRes, reelsRes] = await Promise.all([
           api.courses.getAll({ limit: 6, sort: 'popular' }),
           api.categories.getAll(),
-          api.videos.getAll({ limit: 30, sort: 'popular' }),
+          api.videos.getAll({ limit: 100, sort: 'popular' }),
           api.videos.getAll({ limit: 10, category: 'reels', sort: 'newest' })
         ]);
 
@@ -439,7 +439,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
           {/* Kids Videos Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {kidsVideos.map((video) => (
+            {kidsVideos.slice(0, 6).map((video) => (
               <VideoCard
                 key={video.youtubeId}
                 video={video}
