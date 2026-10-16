@@ -127,6 +127,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<ICourse | null>(null);
 
+  // Video Editor State & Filters
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [editingVideo, setEditingVideo] = useState<IVideo | null>(null);
+  const [videoEditTitle, setVideoEditTitle] = useState('');
+  const [videoEditDesc, setVideoEditDesc] = useState('');
+  const [videoEditYoutubeUrl, setVideoEditYoutubeUrl] = useState('');
+  const [videoEditCategory, setVideoEditCategory] = useState('');
+  const [videoEditSubCategory, setVideoEditSubCategory] = useState('');
+  const [videoEditAudience, setVideoEditAudience] = useState<'all' | 'children' | 'adults'>('all');
+  const [videoEditDifficulty, setVideoEditDifficulty] = useState<'beginner' | 'intermediate' | 'advanced' | 'all'>('all');
+  const [videoEditDuration, setVideoEditDuration] = useState('১৫ মিনিট');
+  const [videoEditChannel, setVideoEditChannel] = useState('');
+  const [videoSaving, setVideoSaving] = useState(false);
+
+  // Video List Filters
+  const [videoListSearch, setVideoListSearch] = useState('');
+  const [videoListCatFilter, setVideoListCatFilter] = useState('all');
+  const [videoLanguageFilter, setVideoLanguageFilter] = useState<'all' | 'bengali_only' | 'english_check'>('all');
+
   const loadAdminData = async () => {
     if (!isAdmin) return;
     setLoading(true);
@@ -394,6 +413,65 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
       }
     } catch (err) {
       alert('ক্যাটাগরি মুছতে ব্যর্থ হয়েছে।');
+    }
+  };
+
+  // Open Edit Video Modal
+  const handleOpenEditVideo = (vid: IVideo) => {
+    setEditingVideo(vid);
+    setVideoEditTitle(vid.title || '');
+    setVideoEditDesc(vid.description || '');
+    setVideoEditYoutubeUrl(vid.youtubeUrl || (vid.youtubeId ? `https://www.youtube.com/watch?v=${vid.youtubeId}` : ''));
+    setVideoEditCategory(vid.categorySlug || 'web-development');
+    setVideoEditSubCategory(vid.subCategorySlug || '');
+    setVideoEditAudience(vid.audience || 'all');
+    setVideoEditDifficulty(vid.difficultyLevel || 'all');
+    setVideoEditDuration(vid.duration || '১৫ মিনিট');
+    setVideoEditChannel(vid.channelName || '');
+    setIsVideoModalOpen(true);
+  };
+
+  // Save / Update Video in Database
+  const handleSaveVideo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingVideo) return;
+    setVideoSaving(true);
+    try {
+      let youtubeId = editingVideo.youtubeId;
+      if (videoEditYoutubeUrl) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = videoEditYoutubeUrl.match(regExp);
+        if (match && match[2].length === 11) {
+          youtubeId = match[2];
+        }
+      }
+
+      const payload: Partial<IVideo> = {
+        title: videoEditTitle.trim(),
+        description: videoEditDesc.trim(),
+        youtubeUrl: videoEditYoutubeUrl.trim(),
+        youtubeId: youtubeId,
+        thumbnailUrl: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : editingVideo.thumbnailUrl,
+        categorySlug: videoEditCategory,
+        subCategorySlug: videoEditSubCategory,
+        audience: videoEditAudience,
+        difficultyLevel: videoEditDifficulty,
+        duration: videoEditDuration,
+        channelName: videoEditChannel || editingVideo.channelName || 'শেখাঘর',
+      };
+
+      const res = await api.admin.updateVideo(editingVideo._id || editingVideo.id || '', payload);
+      if (res.success) {
+        setIsVideoModalOpen(false);
+        setEditingVideo(null);
+        loadAdminData();
+      } else {
+        alert(res.message || 'ভিডিও আপডেট করতে ব্যর্থ হয়েছে।');
+      }
+    } catch (err) {
+      alert('ভিডিও আপডেট করার সময় সমস্যা হয়েছে।');
+    } finally {
+      setVideoSaving(false);
     }
   };
 
@@ -1056,72 +1134,216 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
       {/* Tab 3: VIDEOS LIST TABLE */}
       {activeTab === 'videos-list' && (
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden space-y-4">
-          <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900">
-              শেখাঘরের সকল ইউটিউব ভিডিও সংগ্রহ ({videos.length} টি)
-            </h3>
-            <button
-              onClick={() => setActiveTab('youtube-import')}
-              className="px-3.5 py-1.5 bg-[#16803C] text-white text-xs font-semibold rounded-lg hover:bg-[#105C2B]"
-            >
-              + নতুন ভিডিও যোগ করুন
-            </button>
+          <div className="p-4 sm:p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-slate-900">
+                  শেখাঘরের সকল ভিডিও সংগ্রহ ({videos.length} টি)
+                </h3>
+                {videos.filter((v) => !/[\u0980-\u09FF]/.test(v.title)).length === 0 ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    ১০০% বাংলা ভিডিও নিশ্চিত
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    {videos.filter((v) => !/[\u0980-\u09FF]/.test(v.title)).length} টি ইংরেজি ভিডিও চিহ্নিত
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                সকল ভিডিও বাংলায় রূপান্তর ও সম্পাদনা করুন
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setVideoLanguageFilter(videoLanguageFilter === 'english_check' ? 'all' : 'english_check')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer ${
+                  videoLanguageFilter === 'english_check'
+                    ? 'bg-amber-500 text-white border-amber-600'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <Search className="w-3.5 h-3.5" />
+                ইংরেজি ভিডিও ফিল্টার ({videos.filter((v) => !/[\u0980-\u09FF]/.test(v.title)).length})
+              </button>
+
+              <button
+                onClick={() => setActiveTab('youtube-import')}
+                className="px-3.5 py-1.5 bg-[#16803C] text-white text-xs font-semibold rounded-lg hover:bg-[#105C2B] cursor-pointer"
+              >
+                + নতুন ভিডিও যোগ করুন
+              </button>
+            </div>
+          </div>
+
+          {/* Search & Category Filter Bar */}
+          <div className="px-4 sm:px-6 pt-2 pb-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <input
+                type="text"
+                placeholder="ভিডিওর শিরোনাম বা চ্যানেল দিয়ে খুঁজুন..."
+                value={videoListSearch}
+                onChange={(e) => setVideoListSearch(e.target.value)}
+                className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+              />
+            </div>
+            <div>
+              <select
+                value={videoListCatFilter}
+                onChange={(e) => setVideoListCatFilter(e.target.value)}
+                className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+              >
+                <option value="all">সকল ক্যাটাগরি ({videos.length})</option>
+                {categories.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.parentSlug ? `↳ ${c.name}` : c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <select
+                value={videoLanguageFilter}
+                onChange={(e) => setVideoLanguageFilter(e.target.value as any)}
+                className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+              >
+                <option value="all">ভাষা ফিল্টার: সকল ভিডিও</option>
+                <option value="bengali_only">শুধুমাত্র খাঁটি বাংলা ভিডিও</option>
+                <option value="english_check">পর্যালোচনা প্রয়োজন (ইংরেজি ভিডিও)</option>
+              </select>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase">
-                <tr>
-                  <th className="p-3.5">ভিডিও</th>
-                  <th className="p-3.5">ক্যাটাগরি</th>
-                  <th className="p-3.5">টার্গেট অডিয়েন্স</th>
-                  <th className="p-3.5">সময়কাল</th>
-                  <th className="p-3.5">ভিউ সংখ্যা</th>
-                  <th className="p-3.5 text-right">অ্যাকশন</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {videos.map((vid) => (
-                  <tr key={vid.youtubeId} className="hover:bg-slate-50/60">
-                    <td className="p-3.5 flex items-center gap-2.5 max-w-sm">
-                      <img
-                        src={vid.thumbnailUrl}
-                        alt={vid.title}
-                        className="w-16 aspect-video rounded-md object-cover bg-black shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <span className="font-bold text-slate-900 line-clamp-1 block">{vid.title}</span>
-                        <span className="text-[11px] text-slate-400 font-mono">ID: {vid.youtubeId}</span>
+            {(() => {
+              const filteredVideos = videos.filter((vid) => {
+                const matchesSearch =
+                  !videoListSearch ||
+                  vid.title.toLowerCase().includes(videoListSearch.toLowerCase()) ||
+                  vid.channelName?.toLowerCase().includes(videoListSearch.toLowerCase()) ||
+                  vid.youtubeId.toLowerCase().includes(videoListSearch.toLowerCase());
+
+                const matchesCat =
+                  videoListCatFilter === 'all' ||
+                  vid.categorySlug === videoListCatFilter ||
+                  vid.subCategorySlug === videoListCatFilter;
+
+                const hasBengaliLetters = /[\u0980-\u09FF]/.test(vid.title);
+                let matchesLang = true;
+                if (videoLanguageFilter === 'bengali_only') {
+                  matchesLang = hasBengaliLetters;
+                } else if (videoLanguageFilter === 'english_check') {
+                  matchesLang = !hasBengaliLetters;
+                }
+
+                return matchesSearch && matchesCat && matchesLang;
+              });
+
+              if (filteredVideos.length === 0) {
+                return (
+                  <div className="p-8 text-center text-slate-500 text-xs">
+                    {videoLanguageFilter === 'english_check' ? (
+                      <div className="space-y-1">
+                        <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
+                        <p className="font-bold text-slate-700">চমৎকার! কোনো ইংরেজি ভিডিও পাওয়া যায়নি।</p>
+                        <p className="text-[11px] text-slate-400">শেখাঘরের সকল ভিডিও সফলভাবে খাঁটি বাংলায় রূপান্তর করা হয়েছে।</p>
                       </div>
-                    </td>
-                    <td className="p-3.5 font-semibold text-emerald-800">{vid.categorySlug}</td>
-                    <td className="p-3.5">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">
-                        {vid.audience === 'children' ? 'শিশুদের জন্য' : 'সবার জন্য'}
-                      </span>
-                    </td>
-                    <td className="p-3.5">{vid.duration}</td>
-                    <td className="p-3.5">{vid.viewsCount || 0}</td>
-                    <td className="p-3.5 text-right space-x-2">
-                      <button
-                        onClick={() => navigate(`/video/${vid.youtubeId}`)}
-                        className="p-1 text-slate-500 hover:text-[#16803C]"
-                        title="দেখুন"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteVideo(vid._id || vid.id)}
-                        className="p-1 text-slate-400 hover:text-red-600"
-                        title="মুছুন"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    ) : (
+                      'কোনো ভিডিও পাওয়া যায়নি।'
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <table className="w-full text-left text-xs text-slate-700">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase">
+                    <tr>
+                      <th className="p-3.5">ভিডিও ও শিরোনাম</th>
+                      <th className="p-3.5">চ্যানেল / শিক্ষক</th>
+                      <th className="p-3.5">ক্যাটাগরি</th>
+                      <th className="p-3.5">টার্গেট অডিয়েন্স</th>
+                      <th className="p-3.5">সময়কাল</th>
+                      <th className="p-3.5 text-right">অ্যাকশন</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredVideos.map((vid) => {
+                      const isBengali = /[\u0980-\u09FF]/.test(vid.title);
+                      return (
+                        <tr key={vid.youtubeId} className="hover:bg-slate-50/60">
+                          <td className="p-3.5 flex items-center gap-2.5 max-w-md">
+                            <img
+                              src={vid.thumbnailUrl}
+                              alt={vid.title}
+                              className="w-16 aspect-video rounded-md object-cover bg-black shrink-0"
+                            />
+                            <div className="min-w-0">
+                              <span className="font-bold text-slate-900 line-clamp-1 block">
+                                {vid.title}
+                              </span>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-[11px] text-slate-400 font-mono">ID: {vid.youtubeId}</span>
+                                {!isBengali && (
+                                  <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                                    ইংরেজি — সম্পাদনা প্রয়োজন
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3.5 font-medium text-slate-600">{vid.channelName || 'শেখাঘর'}</td>
+                          <td className="p-3.5 font-semibold text-emerald-800">
+                            {vid.categorySlug}
+                            {vid.subCategorySlug && (
+                              <span className="text-[10px] text-slate-400 block font-normal">
+                                ↳ {vid.subCategorySlug}
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-3.5">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">
+                              {vid.audience === 'children'
+                                ? 'শিশুদের জন্য'
+                                : vid.audience === 'adults'
+                                ? 'প্রাপ্তবয়স্কদের জন্য'
+                                : 'সবার জন্য'}
+                            </span>
+                          </td>
+                          <td className="p-3.5">{vid.duration}</td>
+                          <td className="p-3.5 text-right space-x-2">
+                            <button
+                              onClick={() => handleOpenEditVideo(vid)}
+                              className="p-1 text-slate-500 hover:text-blue-600 cursor-pointer"
+                              title="সম্পাদনা করুন (Edit / Convert to Bangla)"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => navigate(`/video/${vid.youtubeId}`)}
+                              className="p-1 text-slate-500 hover:text-[#16803C] cursor-pointer"
+                              title="দেখুন"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteVideo(vid._id || vid.id)}
+                              className="p-1 text-slate-400 hover:text-red-600 cursor-pointer"
+                              title="মুছুন"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              );
+            })()}
           </div>
         </div>
       )}
@@ -1447,6 +1669,198 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           onClose={() => setIsCourseModalOpen(false)}
           onSave={handleSaveCourse}
         />
+      )}
+
+      {/* Video Editor Modal */}
+      {isVideoModalOpen && editingVideo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-emerald-100 text-[#16803C] rounded-lg">
+                  <Edit className="w-5 h-5" />
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">ভিডিও সম্পাদনা ও খাঁটি বাংলায় রূপান্তর</h3>
+                  <p className="text-xs text-slate-500">ইউটিউব আইডি: {editingVideo.youtubeId}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsVideoModalOpen(false);
+                  setEditingVideo(null);
+                }}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveVideo} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  ভিডিওর বাংলা শিরোনাম *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={videoEditTitle}
+                  onChange={(e) => setVideoEditTitle(e.target.value)}
+                  placeholder="যেমন: HTML5 ও CSS3 দিয়ে সম্পূর্ণ ওয়েবসাইট তৈরি — বাংলা টিউটোরিয়াল"
+                  className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    ইউটিউব লিঙ্ক বা ভিডিও আইডি *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={videoEditYoutubeUrl}
+                    onChange={(e) => setVideoEditYoutubeUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    চ্যানেল বা প্রশিক্ষকের নাম
+                  </label>
+                  <input
+                    type="text"
+                    value={videoEditChannel}
+                    onChange={(e) => setVideoEditChannel(e.target.value)}
+                    placeholder="যেমন: Learn with Sumit / সিসিমপুর"
+                    className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    মূল ক্যাটাগরি *
+                  </label>
+                  <select
+                    value={videoEditCategory}
+                    onChange={(e) => setVideoEditCategory(e.target.value)}
+                    className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                  >
+                    {categories.map((c) => (
+                      <option key={c.slug} value={c.slug}>
+                        {c.parentSlug ? `↳ ${c.name}` : c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    সাব-ক্যাটাগরি (Optional)
+                  </label>
+                  <select
+                    value={videoEditSubCategory}
+                    onChange={(e) => setVideoEditSubCategory(e.target.value)}
+                    className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                  >
+                    <option value="">কোনোটি নয়</option>
+                    {categories
+                      .filter((c) => c.parentSlug === videoEditCategory || (c.parentSlug && c.slug !== videoEditCategory))
+                      .map((c) => (
+                        <option key={c.slug} value={c.slug}>
+                          {c.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    টার্গেট অডিয়েন্স
+                  </label>
+                  <select
+                    value={videoEditAudience}
+                    onChange={(e) => setVideoEditAudience(e.target.value as any)}
+                    className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                  >
+                    <option value="all">সবার জন্য (All)</option>
+                    <option value="children">শিশুদের জন্য (Kids)</option>
+                    <option value="adults">প্রাপ্তবয়স্কদের জন্য</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    কঠিনতার স্তর
+                  </label>
+                  <select
+                    value={videoEditDifficulty}
+                    onChange={(e) => setVideoEditDifficulty(e.target.value as any)}
+                    className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                  >
+                    <option value="all">সাধারণ (General)</option>
+                    <option value="beginner">বিগিনার (Beginner)</option>
+                    <option value="intermediate">ইন্টারমিডিয়েট (Intermediate)</option>
+                    <option value="advanced">অ্যাডভান্সড (Advanced)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    সময়কাল
+                  </label>
+                  <input
+                    type="text"
+                    value={videoEditDuration}
+                    onChange={(e) => setVideoEditDuration(e.target.value)}
+                    placeholder="যেমন: ১৫ মিনিট / ১ ঘণ্টা"
+                    className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  ভিডিওর বাংলা বিবরণ বা সারসংক্ষেপ
+                </label>
+                <textarea
+                  rows={3}
+                  value={videoEditDesc}
+                  onChange={(e) => setVideoEditDesc(e.target.value)}
+                  placeholder="ভিডিও সম্পর্কে খাঁটি বাংলায় বিবরণ লিখুন..."
+                  className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16803C]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsVideoModalOpen(false);
+                    setEditingVideo(null);
+                  }}
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer"
+                >
+                  বাতিল
+                </button>
+                <button
+                  type="submit"
+                  disabled={videoSaving}
+                  className="px-5 py-2 bg-[#16803C] hover:bg-[#105C2B] text-white text-xs font-bold rounded-lg cursor-pointer disabled:opacity-50"
+                >
+                  {videoSaving ? 'সংরক্ষণ হচ্ছে...' : 'ভিডিও আপডেট ও সংরক্ষণ করুন'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
